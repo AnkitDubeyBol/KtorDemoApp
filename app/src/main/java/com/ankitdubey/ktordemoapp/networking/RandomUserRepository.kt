@@ -6,12 +6,16 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+const val baseURL = "api.gravtee.com"
+
 class RandomUserRepository (private val client : HttpClient){
 
     suspend fun fetchUserData() : Flow<DataState<RandomUserDao>>  = flow {
         emit(DataState.Loading)
         try {
-            val user = client.get<RandomUserDao>("https://randomuser.me/api/")
+            val user = client
+                .get<RandomUserDao>("https://randomuser.me/api/")
+
             emit(DataState.Success(user))
         }catch (ex : Exception){
             emit(DataState.Error(ex))

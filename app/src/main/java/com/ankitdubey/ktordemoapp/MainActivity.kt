@@ -2,7 +2,10 @@ package com.ankitdubey.ktordemoapp
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import com.ankitdubey.ktordemoapp.miza_custom_views.MizaDropDown
+import com.ankitdubey.ktordemoapp.miza_custom_views.MizaEditText
 import com.ankitdubey.ktordemoapp.networking.DataState
 import com.ankitdubey.ktordemoapp.networking.RandomUserRepository
 import kotlinx.coroutines.GlobalScope
@@ -17,7 +20,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        repository = RandomUserRepository(ktorHttpClient)
+
+        /*repository = RandomUserRepository(ktorHttpClient)
         GlobalScope.launch {
             repository.fetchUserData().collect {
                 when (it) {
@@ -30,7 +34,17 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }*/
+        val mizaEt = findViewById<MizaEditText>(R.id.dob)
+        mizaEt.setOnClickListener {
+            mizaEt.selectDate(supportFragmentManager) {
+                Log.e("hurrah","$it")
+            }
         }
-
+        val items = listOf("-Select-","Agra","Kanpur","Lucknow","Noida","Ghaziabad")
+        val mizaDropDown = findViewById<MizaDropDown>(R.id.select_city)
+        mizaDropDown.setItems(items){
+            Log.e("hurrah","$it")
+        }
     }
 }

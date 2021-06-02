@@ -1,22 +1,41 @@
 package com.ankitdubey.ktordemoapp
 
 import android.util.Log
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
-import io.ktor.client.features.DefaultRequest
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
-import io.ktor.client.features.logging.Logging
-import io.ktor.client.features.logging.Logger
-import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.observer.ResponseObserver
-import io.ktor.client.request.header
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
+import com.ankitdubey.ktordemoapp.networking.baseURL
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.features.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
+import io.ktor.client.features.observer.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import okhttp3.CertificatePinner
 
 private const val TIME_OUT = 60_000
 
-val ktorHttpClient = HttpClient(Android) {
+// Amazon Root CAs generated using openssl:
+// openssl x509 -in my-certificate.crt -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
+// Amazon Root CAs generated using openssl:
+// openssl x509 -in my-certificate.crt -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
+
+
+var cert : CertificatePinner = CertificatePinner.Builder()
+    .add(baseURL, "sha256/++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=")
+    .add(baseURL, "sha256/f0KW/FtqTjs108NpYj42SrGvOB2PpxIVM8nWxjPqJGE=")
+    .add(baseURL, "sha256/NqvDJlas/GRcYbcWE8S/IceH9cq77kg0jVhZeAPXq8k=")
+    .add(baseURL, "sha256/9+ze1cZgR9KO1kZrVDxA4HQ6voHRCSVNz4RdTCx4U8U=")
+    .add(baseURL, "sha256/KwccWaCgrnaw6tsrrSO61FgLacNgG2MMLq8GE6+oP5I=")
+    .build()
+
+val ktorHttpClient = HttpClient(OkHttp) {
+
+    engine {
+        this.config {
+            certificatePinner(cert)
+        }
+    }
 
     install(JsonFeature) {
         serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
@@ -24,11 +43,6 @@ val ktorHttpClient = HttpClient(Android) {
             isLenient = true
             ignoreUnknownKeys = true
         })
-
-        engine {
-            connectTimeout = TIME_OUT
-            socketTimeout = TIME_OUT
-        }
     }
 
     install(Logging) {
